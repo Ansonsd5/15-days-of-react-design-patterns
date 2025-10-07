@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import UserProfilePresenter from "./UserProfilePresenter";
 
-
 const UserProfileContainer = ({ userId }) => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -21,11 +20,6 @@ const UserProfileContainer = ({ userId }) => {
         `${import.meta.env.VITE_API_BASE_URL}/api/users/${userId}`
       );
       setUser(response.data);
-      //   setFormData({
-      //     name: response.data.name,
-      //     email: response.data.email,
-      //     bio: response.data.bio,
-      //   });
     } catch (err) {
       setError("Failed to fetch user data");
     } finally {
@@ -41,12 +35,24 @@ const UserProfileContainer = ({ userId }) => {
       setPosts(response.data);
     } catch (err) {
       console.error("Failed to fetch posts");
-      // Don't set loading to false here, posts are secondary
     }
   };
 
   const handleRetry = () => {
     fetchUserData();
+  };
+
+  const handleUpdateUser = async (updatedUserData) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_BASE_URL}/api/users/${userId}`,
+        updatedUserData
+      );
+      setUser(response.data);
+      return { success: true };
+    } catch (err) {
+      return { success: false, error: "Failed to update profile" };
+    }
   };
 
   return (
@@ -57,6 +63,7 @@ const UserProfileContainer = ({ userId }) => {
         loading={loading}
         error={error}
         onRetry={() => handleRetry()}
+        onUpdateUser={handleUpdateUser}
       />
     </div>
   );
